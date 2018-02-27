@@ -2,8 +2,10 @@
 <html>
 
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>custom setup onesignal for web</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="manifest" href="./manifest.json">
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
@@ -13,16 +15,82 @@
                 appId: "ad76ebf3-8237-46c4-a8c7-98c893db77f2",
                 autoRegister: false,
                 notifyButton: {
-                    enable: true,
+                    enable: true
                 },
+                safari_web_id: "2bd24c9c-6b5e-41da-a209-1033c3319dfc"
             });
+            
+            //  setting default url
+            OneSignal.setDefaultNotificationUrl("https://www.custom-setup-onesignal-notification-driviowork.c9users.io");
+            OneSignal.setDefaultTitle("My custom title"); // default title
+            
+            // subscribtion change event
+            OneSignal.on('subscriptionChange', function(isSubscribed) {
+                console.log("User subscribtion change event state", isSubscribed);
+            });
+            
+            // On notification display event
+            OneSignal.on('notificationDisplay', function(event) {
+                console.warn('OneSignal notification displayed:', event);
+            });
+
+            // funcation will fire after notification opened 
+            OneSignal.push(["addListenerForNotificationOpened", function(data) {
+                console.log("Received NotificationOpened:");
+                console.log(data);
+            }]);
         });
+        
+        
+        //  checking user notification permission 
+        function checkPermission() {
+            OneSignal.push(["getNotificationPermission", function(permission) {
+                console.log("Site Notification Permission:", permission);
+            }]);
+        }
+
+        //  Get user notification id
+        function getId() {
+            OneSignal.getUserId().then(function(userId) {
+                console.log("OneSignal User ID:", userId);
+            });
+        }
+
+
+
+
+        function toggleNotification() {
+            // if true, then set false . if false previously it's does do anything
+            // so, please check status before mute (set false notification)
+            OneSignal.push(["setSubscription", true]);
+        }
+
+        function subscribeAUser() {
+            OneSignal.getSubscription(function(notOptedOut) {
+                if (notOptedOut) {
+                    OneSignal.registerForPushNotifications({
+                        // modalPrompt: false // if it is true then a custom alert modal will open
+                    });
+                }
+            });
+        }
     </script>
+
 </head>
 
 
 <body>
-    <h1>Welcome to custom setup OneSignal</h1>
+    <div class="container">
+        <div class="row text-center">
+            <br><br><br><br><br><br><br>
+            <h1>Welcome to custom setup OneSignal</h1>
+            <br><br><br>
+            <button class="btn btn-default btn-lg" onClick="checkPermission()">Get permission </button>
+            <button class="btn btn-default btn-lg" onClick="getId()">Get user Id</button>
+            <button class="btn btn-default btn-lg" onClick="subscribeAUser()">Subscribe a new user</button>
+            <button class="btn btn-default btn-lg" onClick="toggleNotification()">Toggle mute notification</button>
+        </div>
+    </div>
 </body>
 
 </html>
